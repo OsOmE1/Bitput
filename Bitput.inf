@@ -1,0 +1,75 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class=System ; TODO: edit Class
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: edit ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=Bitput.cat
+DriverVer=1.0; TODO: set DriverVer in stampinf property pages
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+Bitput_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+Bitput.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%Bitput.DeviceDesc%=Bitput_Device, Root\Bitput ; TODO: edit hw-id
+
+[Bitput_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+Bitput.sys
+
+;-------------- Service installation
+[Bitput_Device.NT.Services]
+AddService = Bitput,%SPSVCINST_ASSOCSERVICE%, Bitput_Service_Inst
+
+; -------------- Bitput driver install sections
+[Bitput_Service_Inst]
+DisplayName    = %Bitput.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\Bitput.sys
+
+;
+;--- Bitput_Device Coinstaller installation ------
+;
+
+[Bitput_Device.NT.CoInstallers]
+AddReg=Bitput_Device_CoInstaller_AddReg
+CopyFiles=Bitput_Device_CoInstaller_CopyFiles
+
+[Bitput_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[Bitput_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[Bitput_Device.NT.Wdf]
+KmdfService =  Bitput, Bitput_wdfsect
+[Bitput_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+ClassName="Samples" ; TODO: edit ClassName
+DiskName = "Bitput Installation Disk"
+Bitput.DeviceDesc = "Bitput Device"
+Bitput.SVCDESC = "Bitput Service"
